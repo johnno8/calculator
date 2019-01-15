@@ -18,17 +18,17 @@ const keys = [{
     operator: true
   },{
     name: 'seven',
-    displayValue: 7,
+    displayValue: '7',
     class: 'input-key',
     operator: false
   },{
     name: 'eight',
-    displayValue: 8,
+    displayValue: '8',
     class: 'input-key',
     operator: false
   },{
     name: 'nine',
-    displayValue: 9,
+    displayValue: '9',
     class: 'input-key',
     operator: false
   },{
@@ -38,17 +38,17 @@ const keys = [{
     operator: true
   },{
     name: 'four',
-    displayValue: 4,
+    displayValue: '4',
     class: 'input-key',
     operator: false
   },{
     name: 'five',
-    displayValue: 5,
+    displayValue: '5',
     class: 'input-key',
     operator: false
   },{
     name: 'six',
-    displayValue: 6,
+    displayValue: '6',
     class: 'input-key',
     operator: false
   },{
@@ -58,17 +58,17 @@ const keys = [{
     operator: true
   },{
     name: 'one',
-    displayValue: 1,
+    displayValue: '1',
     class: 'input-key',
     operator: false
   },{
     name: 'two',
-    displayValue: 2,
+    displayValue: '2',
     class: 'input-key',
     operator: false
   },{
     name: 'three',
-    displayValue: 3,
+    displayValue: '3',
     class: 'input-key',
     operator: false
   },{
@@ -83,7 +83,7 @@ const keys = [{
     operator: true
   },{
     name: 'zero',
-    displayValue: 0,
+    displayValue: '0',
     class: 'input-key',
     operator: false
   },{
@@ -102,24 +102,49 @@ class App extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      keys: keys
+      keys: keys,
+      entry: '',
+      expression: '',
+      calculate: false,
+      total: 0
     }
   }
 
-  handleClick = (param) => (e) => {
-    if(param) {
-      console.log('operator: ' + param);
-      console.log('e.target.value: ' + e.target.value);
+  handleClick = (oper) => (e) => {
+    if(oper) {
+      this.handleOperator(e.target.value);
     } else {
-      console.log('not operator');
-      console.log('e.target.value: ' + e.target.value);
+      this.handleDigit(e.target.value);
+    }
+  }
+
+  handleDigit = (value) => {
+    this.setState({
+      entry: this.state.entry + value,
+      expression: this.state.expression + value
+    });
+  }
+
+  handleOperator = (value) => {
+    if(!this.state.calculate) {
+      this.setState({
+        total: this.state.entry,
+        expression: this.state.expression + value,
+        entry: '',
+        calculate: true
+      });
+    } else {
+      console.log('do calculation');
     }
   }
 
   render() {
     return (
       <div className="App">
-        <Display/>
+        <Display
+          expression={this.state.expression}
+          entry={this.state.entry}
+        />
         <KeyPad
           keys={this.state.keys}
           onClick={this.handleClick}
@@ -132,8 +157,8 @@ class App extends Component {
 function Display(props) {
   return(
     <div class="display">
-      <div class="expression">342+124-</div>
-      <div class="entry">968</div>
+      <div class="expression">{props.expression}</div>
+      <div class="entry">{props.entry}</div>
     </div>
   );
 }
