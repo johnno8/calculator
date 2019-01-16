@@ -7,9 +7,9 @@ const keys = [{
     class: 'input-key',
     operator: true
   },{
-    name: 'clear-entry',
-    displayValue: 'CE',
-    class: 'input-key',
+    name: 'sign',
+    displayValue: '+/-',
+    class: 'input-key operator',
     operator: true
   },{
     name: 'divide',
@@ -77,11 +77,6 @@ const keys = [{
     class: 'input-key operator',
     operator: true
   },{
-    name: 'sign',
-    displayValue: '+/-',
-    class: 'input-key operator',
-    operator: true
-  },{
     name: 'zero',
     displayValue: '0',
     class: 'input-key',
@@ -141,12 +136,32 @@ class App extends Component {
   handleOperator = (value) => {
     if(this.state.isFirstOperator) {
       if(this.state.entryIsPreviousAnswer) {
+        if(value !== 'AC') {
+          this.setState({
+            expression: this.state.total + value,
+            entry: '',
+            currentOperator: value,
+            isFirstOperator: false
+          });
+        } else {
+          this.setState({
+            entry: '',
+            expression: '',
+            isFirstOperator: true,
+            currentOperator: '',
+            total: null,
+            entryIsPreviousAnswer: false
+          });
+        }    
+      } else if(this.state.entryIsPreviousAnswer) {
         this.setState({
-          expression: this.state.total + value,
-          entry: '',
-          currentOperator: value,
-          isFirstOperator: false
-        });
+            entry: '',
+            expression: '',
+            isFirstOperator: true,
+            currentOperator: '',
+            total: null,
+            entryIsPreviousAnswer: false
+          });
       } else {
         this.setState({
           total: this.state.entry,
@@ -156,16 +171,36 @@ class App extends Component {
           isFirstOperator: false
         });
       }
-    } else if(value === '='){
-      this.equals();
     } else {
-      let result = this.doOperation(this.state.currentOperator);
-      this.setState({
-        currentOperator: value,
-        entry: '',
-        expression: this.state.expression + value,
-        total: result
-      });
+      switch(value) {
+        case 'AC':
+          this.setState({
+            entry: '',
+            expression: '',
+            isFirstOperator: true,
+            currentOperator: '',
+            total: null,
+            entryIsPreviousAnswer: false
+          });
+          break; 
+
+        case '+/-':
+          console.log('not implemented yet :p');
+          break;
+
+        case '=':
+          this.equals();
+          break;
+
+        default:
+          let result = this.doOperation(this.state.currentOperator);
+          this.setState({
+            currentOperator: value,
+            entry: '',
+            expression: this.state.expression + value,
+            total: result
+          });
+      }
     }
   }
 
