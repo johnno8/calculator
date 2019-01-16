@@ -105,9 +105,10 @@ class App extends Component {
       keys: keys,
       entry: '',
       expression: '',
-      firstOperator: true,
+      isFirstOperator: true,
       currentOperator: '',
-      total: null
+      total: null,
+      entryIsPreviousAnswer: false
     }
   }
 
@@ -120,21 +121,41 @@ class App extends Component {
   }
 
   handleDigit = (value) => {
-    this.setState({
-      entry: this.state.entry + value,
-      expression: this.state.expression + value
-    });
+    if(this.state.entryIsPreviousAnswer) {
+      this.setState({
+        entry: '' + value,
+        expression: '' + value,
+        isFirstOperator: true,
+        currentOperator: '',
+        total: null,
+        entryIsPreviousAnswer: false
+      });
+    } else {
+      this.setState({
+        entry: this.state.entry + value,
+        expression: this.state.expression + value
+      });
+    }
   }
 
   handleOperator = (value) => {
-    if(this.state.firstOperator) {
-      this.setState({
-        total: this.state.entry,
-        expression: this.state.expression + value,
-        entry: '',
-        currentOperator: value,
-        firstOperator: false
-      });
+    if(this.state.isFirstOperator) {
+      if(this.state.entryIsPreviousAnswer) {
+        this.setState({
+          expression: this.state.total + value,
+          entry: '',
+          currentOperator: value,
+          isFirstOperator: false
+        });
+      } else {
+        this.setState({
+          total: this.state.entry,
+          expression: this.state.expression + value,
+          entry: '',
+          currentOperator: value,
+          isFirstOperator: false
+        });
+      }
     } else if(value === '='){
       this.equals();
     } else {
@@ -178,7 +199,9 @@ class App extends Component {
       currentOperator: '',
       expression: this.state.expression + '=' + result,
       total: result,
-      entry: result
+      entry: result,
+      isFirstOperator: true,
+      entryIsPreviousAnswer: true
     });
   }
 
@@ -197,13 +220,7 @@ class App extends Component {
       case '+':
         result = this.add(Number(this.state.total), Number(this.state.entry));
         break;
-      // case '=':
-      //   this.equals();
-      //   break;
     }
-    // this.setState({
-    //   total: result
-    // });
     return result;
   }
 
