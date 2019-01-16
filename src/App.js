@@ -105,7 +105,7 @@ class App extends Component {
       keys: keys,
       entry: '',
       expression: '',
-      calculate: false,
+      firstOperator: true,
       currentOperator: '',
       total: null
     }
@@ -127,91 +127,59 @@ class App extends Component {
   }
 
   handleOperator = (value) => {
-    if(!this.state.calculate) {
+    if(this.state.firstOperator) {
       this.setState({
         total: this.state.entry,
         expression: this.state.expression + value,
         entry: '',
         currentOperator: value,
-        calculate: true
+        firstOperator: false
       });
+    } else if(value === '='){
+      this.equals();
     } else {
-      this.doOperation(this.state.currentOperator);
+      let result = this.doOperation(this.state.currentOperator);
       this.setState({
         currentOperator: value,
         entry: '',
-        expression: this.state.expression + value
+        expression: this.state.expression + value,
+        total: result
       });
-      // switch(value) {
-      //   case '÷':
-      //     this.divide();
-      //     break;
-      //   case 'x':
-      //     this.multiply();
-      //     break;
-      //   case '-':
-      //     this.subtract();
-      //     break;
-      //   case '+':
-      //     this.add();
-      //     break;
-      //   case '=':
-      //     this.equals();
-      //     break;
-      // }
     }
   }
 
   divide = (first, second) => {
-    // const result = Number(this.state.total) / Number(this.state.entry);
-    // this.setState({
-    //   total: result,
-    //   entry: '',
-    //   expression: this.state.expression + '÷'
-    // });
     const result = first / second;
     console.log('result: ' + result);
     return result;
   }
 
   multiply = (first, second) => {
-    // const result = Number(this.state.total) * Number(this.state.entry);
-    // this.setState({
-    //   total: result,
-    //   entry: '',
-    //   expression: this.state.expression + 'x'
-    // });
     const result = first * second;
     console.log('result: ' + result);
     return result;
   }
 
   subtract = (first, second) => {
-    // const result = Number(this.state.total) - Number(this.state.entry);
-    // this.setState({
-    //   total: result,
-    //   entry: '',
-    //   expression: this.state.expression + '-'
-    // });
     const result = first - second;
     console.log('result: ' + result);
     return result;
   }
 
   add = (first, second) => {
-    // const result = Number(this.state.total) + Number(this.state.entry);
-    // this.setState({
-    //   total: result,
-    //   entry: '',
-    //   expression: this.state.expression + '+'
-    // });
     const result = first + second;
     console.log('result: ' + result);
     return result;
   }
 
   equals = () => {
-
+    let result = this.doOperation(this.state.currentOperator);
+    this.setState({
+      currentOperator: '',
+      expression: this.state.expression + '=' + result,
+      total: result,
+      entry: result
+    });
   }
 
   doOperation = (value) => {
@@ -229,13 +197,14 @@ class App extends Component {
       case '+':
         result = this.add(Number(this.state.total), Number(this.state.entry));
         break;
-      case '=':
-        this.equals();
-        break;
+      // case '=':
+      //   this.equals();
+      //   break;
     }
-    this.setState({
-      total: result
-    });
+    // this.setState({
+    //   total: result
+    // });
+    return result;
   }
 
   render() {
