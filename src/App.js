@@ -1,103 +1,10 @@
 import React, { Component } from 'react';
 import './App.css';
 
-const keys = [{
-    name: 'clear',
-    displayValue: 'AC',
-    class: 'input-key',
-    operator: true
-  },{
-    name: 'sign',
-    displayValue: '+/-',
-    class: 'input-key operator',
-    operator: true
-  },{
-    name: 'divide',
-    displayValue: '÷',
-    class: 'input-key operator',
-    operator: true
-  },{
-    name: 'seven',
-    displayValue: '7',
-    class: 'input-key',
-    operator: false
-  },{
-    name: 'eight',
-    displayValue: '8',
-    class: 'input-key',
-    operator: false
-  },{
-    name: 'nine',
-    displayValue: '9',
-    class: 'input-key',
-    operator: false
-  },{
-    name: 'multiply',
-    displayValue: 'x',
-    class: 'input-key operator',
-    operator: true
-  },{
-    name: 'four',
-    displayValue: '4',
-    class: 'input-key',
-    operator: false
-  },{
-    name: 'five',
-    displayValue: '5',
-    class: 'input-key',
-    operator: false
-  },{
-    name: 'six',
-    displayValue: '6',
-    class: 'input-key',
-    operator: false
-  },{
-    name: 'subtract',
-    displayValue: '-',
-    class: 'input-key operator',
-    operator: true
-  },{
-    name: 'one',
-    displayValue: '1',
-    class: 'input-key',
-    operator: false
-  },{
-    name: 'two',
-    displayValue: '2',
-    class: 'input-key',
-    operator: false
-  },{
-    name: 'three',
-    displayValue: '3',
-    class: 'input-key',
-    operator: false
-  },{
-    name: 'add',
-    displayValue: '+',
-    class: 'input-key operator',
-    operator: true
-  },{
-    name: 'zero',
-    displayValue: '0',
-    class: 'input-key',
-    operator: false
-  },{
-    name: 'decimal',
-    displayValue: '.',
-    class: 'input-key',
-    operator: false
-  },{
-    name: 'equals',
-    displayValue: '=',
-    class: 'input-key',
-    operator: true
-  }];
-
 class App extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      keys: keys,
       entry: '',
       expression: '',
       isFirstOperator: true,
@@ -107,19 +14,24 @@ class App extends Component {
     }
   }
 
-  handleClick = (oper) => (e) => {
-    if(oper) {
-      this.handleOperator(e.target.value);
-    } else {
-      this.handleDigit(e.target.value);
-    }
+  handleClear = (e) => {
+    console.log('clear function called');
+    this.setState({
+      entry: '',
+      expression: '',
+      isFirstOperator: true,
+      currentOperator: '',
+      total: null,
+      entryIsPreviousAnswer: false
+    });
   }
 
-  handleDigit = (value) => {
+  handleDigit = (e) => {
+    console.log('digit function called: ' + e.target.value);
     if(this.state.entryIsPreviousAnswer) {
       this.setState({
-        entry: '' + value,
-        expression: '' + value,
+        entry: '' + e.target.value,
+        expression: '' + e.target.value,
         isFirstOperator: true,
         currentOperator: '',
         total: null,
@@ -127,63 +39,34 @@ class App extends Component {
       });
     } else {
       this.setState({
-        entry: this.state.entry + value,
-        expression: this.state.expression + value
+        entry: this.state.entry + e.target.value,
+        expression: this.state.expression + e.target.value
       });
     }
   }
 
-  handleOperator = (value) => {
+  handleOperator = (e) => {
+    console.log('operator function called: ' + e.target.value);
     if(this.state.isFirstOperator) {
       if(this.state.entryIsPreviousAnswer) {
-        if(value !== 'AC') {
-          this.setState({
-            expression: this.state.total + value,
-            entry: '',
-            currentOperator: value,
-            isFirstOperator: false
-          });
-        } else {
-          this.setState({
-            entry: '',
-            expression: '',
-            isFirstOperator: true,
-            currentOperator: '',
-            total: null,
-            entryIsPreviousAnswer: false
-          });
-        }    
-      } else if(this.state.entryIsPreviousAnswer) {
         this.setState({
-            entry: '',
-            expression: '',
-            isFirstOperator: true,
-            currentOperator: '',
-            total: null,
-            entryIsPreviousAnswer: false
-          });
+          expression: this.state.total + e.target.value,
+          entry: '',
+          currentOperator: e.target.value,
+          isFirstOperator: false,
+          entryIsPreviousAnswer: false
+        });
       } else {
         this.setState({
           total: this.state.entry,
-          expression: this.state.expression + value,
+          expression: this.state.expression + e.target.value,
           entry: '',
-          currentOperator: value,
+          currentOperator: e.target.value,
           isFirstOperator: false
         });
       }
     } else {
-      switch(value) {
-        case 'AC':
-          this.setState({
-            entry: '',
-            expression: '',
-            isFirstOperator: true,
-            currentOperator: '',
-            total: null,
-            entryIsPreviousAnswer: false
-          });
-          break; 
-
+      switch(e.target.value) {
         case '+/-':
           console.log('not implemented yet :p');
           break;
@@ -193,15 +76,34 @@ class App extends Component {
           break;
 
         default:
-          let result = this.doOperation(this.state.currentOperator);
+          let result = this.doCalculation(this.state.currentOperator);
           this.setState({
-            currentOperator: value,
+            currentOperator: e.target.value,
             entry: '',
-            expression: this.state.expression + value,
+            expression: this.state.expression + e.target.value,
             total: result
           });
-      }
+      } 
     }
+  }
+
+  doCalculation = (value) => {
+    let result = null;
+    switch(value) {
+      case '÷':
+        result = this.divide(Number(this.state.total), Number(this.state.entry));
+        break;
+      case 'x':
+        result = this.multiply(Number(this.state.total), Number(this.state.entry));
+        break;
+      case '-':
+        result = this.subtract(Number(this.state.total), Number(this.state.entry));
+        break;
+      case '+':
+        result = this.add(Number(this.state.total), Number(this.state.entry));
+        break;
+    }
+    return result;
   }
 
   divide = (first, second) => {
@@ -229,7 +131,7 @@ class App extends Component {
   }
 
   equals = () => {
-    let result = this.doOperation(this.state.currentOperator);
+    let result = this.doCalculation(this.state.currentOperator);
     this.setState({
       currentOperator: '',
       expression: this.state.expression + '=' + result,
@@ -240,24 +142,16 @@ class App extends Component {
     });
   }
 
-  doOperation = (value) => {
-    let result = null;
-    switch(value) {
-      case '÷':
-        result = this.divide(Number(this.state.total), Number(this.state.entry));
-        break;
-      case 'x':
-        result = this.multiply(Number(this.state.total), Number(this.state.entry));
-        break;
-      case '-':
-        result = this.subtract(Number(this.state.total), Number(this.state.entry));
-        break;
-      case '+':
-        result = this.add(Number(this.state.total), Number(this.state.entry));
-        break;
-    }
-    return result;
-  }
+  renderInputKey(name, val, c, clickFunc) {
+    return(
+      <InputKey 
+        className={c}
+        id={name}
+        value={val}
+        onClick={clickFunc}
+      />
+    )
+  }  
 
   render() {
     return (
@@ -266,10 +160,30 @@ class App extends Component {
           expression={this.state.expression}
           entry={this.state.entry}
         />
-        <KeyPad
-          keys={this.state.keys}
-          onClick={this.handleClick}
-        />
+        <div className="keypad">
+          {this.renderInputKey('clear', 'AC', 'input-key', this.handleClear)}
+          {this.renderInputKey('sign', '+/-', 'input-key operator', this.handleOperator)}
+          {this.renderInputKey('divide', '÷', 'input-key operator', this.handleOperator)}
+       
+          {this.renderInputKey('seven', '7', 'input-key', this.handleDigit)}
+          {this.renderInputKey('eight', '8', 'input-key', this.handleDigit)}
+          {this.renderInputKey('nine', '9', 'input-key', this.handleDigit)}
+          {this.renderInputKey('multiply', 'x', 'input-key operator', this.handleOperator)}
+     
+          {this.renderInputKey('four', '4', 'input-key', this.handleDigit)}
+          {this.renderInputKey('five', '5', 'input-key', this.handleDigit)}
+          {this.renderInputKey('six', '6', 'input-key', this.handleDigit)}
+          {this.renderInputKey('subtract', '-', 'input-key operator', this.handleOperator)}
+     
+          {this.renderInputKey('one', '1', 'input-key', this.handleDigit)}
+          {this.renderInputKey('two', '2', 'input-key', this.handleDigit)}
+          {this.renderInputKey('three', '3', 'input-key', this.handleDigit)}
+          {this.renderInputKey('multiply', '+', 'input-key operator', this.handleOperator)}
+    
+          {this.renderInputKey('zero', '0', 'input-key', this.handleDigit)}
+          {this.renderInputKey('decimal', '.', 'input-key', this.handleDigit)}
+          {this.renderInputKey('equals', '=', 'input-key operator', this.handleOperator)}
+        </div>
       </div>
     );
   }
@@ -277,37 +191,19 @@ class App extends Component {
 
 function Display(props) {
   return(
-    <div class="display">
-      <div class="expression">{props.expression}</div>
-      <div class="entry">{props.entry}</div>
+    <div className="display">
+      <div className="expression">{props.expression}</div>
+      <div className="entry">{props.entry}</div>
     </div>
   );
 }
 
-function KeyPad(props) {
-  return(
-    <div className="keypad">
-      {props.keys.map((key) => {
-          return(
-            <InputKey 
-              id={key.name}
-              displayValue={key.displayValue}
-              classToAdd={key.class}
-              onClick={props.onClick}
-              operator={key.operator}
-            />
-          );
-        })
-      }
-    </div>
-  );
-}
 
 function InputKey(props) {
   return(
-    <button className={props.classToAdd} id={props.id} onClick={props.onClick(props.operator)}
-      value={props.displayValue}>
-      {props.displayValue}
+    <button className={props.className} id={props.id} onClick={props.onClick}
+      value={props.value}>
+      {props.value}
     </button>
   );
 }
